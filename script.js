@@ -22,7 +22,13 @@ const gameBoard = (() => {
         }
         return false;
     };
-    return {getBoard, updateBoard};
+    //Function to reset gameBoard to empty spaces
+    const resetBoard = () => {
+        for (let i = 0; i < board.length; i++) {
+            board[i] = '';
+        }
+    }
+    return {getBoard, updateBoard, resetBoard};
 })();
 
 //Game Controller
@@ -49,4 +55,25 @@ const gameController = (() => {
             [0, 4, 8],
             [2, 4, 6]
         ];
+        /*Check if any of the win conditions above are met for each of the
+        indices on the board. If the cells at those indices are not empty and
+        they are the same, then we have a winner!*/
+        return winConditions.some(([a, b, c]) =>
+        board[a] !== '' && board[a] === board[b] && board[b] === board[c]
+    );
     }
+
+//Function to check for tie
+    const checkTie = () => {
+        const board = gameBoard.getBoard();
+        return board.every(cell => cell !== '');
+    };
+    
+//Function to start the game
+    const getCurrentPlayer = () => currentPlayer;
+    const startGame = () => {
+        currentPlayer = player1;
+    }
+
+    return {startGame, switchPlayer, checkWin, checkTie, getCurrentPlayer};
+})();
