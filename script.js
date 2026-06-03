@@ -77,3 +77,7 @@ const gameController = (() => {
 
     return {startGame, switchPlayer, checkWin, checkTie, getCurrentPlayer};
 })();
+
+
+
+//UI Controller
