@@ -79,8 +79,9 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: center;
     align-items: center;
     background-color: #535353;
-    font-size: 2em;
-    font-weight: bold;
+    font-size: 4em;
     color: #fff;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
     cursor: pointer;
 }
