@@ -81,3 +81,20 @@ const gameController = (() => {
 
 
 //UI Controller
+
+let cell = document.querySelectorAll('.cell');
+const restartButton = document.getElementById('restart');
+
+restartButton.addEventListener('click', () => {
+    gameBoard.resetBoard();
+    cell.forEach(cell => cell.textContent = '');
+    gameController.startGame();
+});
+
+const cellClicked = () => {
+    console.log('Cell clicked');
+}
+
+cell.forEach(cell => cell.addEventListener('click', cellClicked));
+
+
