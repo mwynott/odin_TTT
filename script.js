@@ -75,14 +75,6 @@ const gameController = (() => {
         currentPlayer = player1;
     }
 
-    return {startGame, switchPlayer, checkWin, checkTie, getCurrentPlayer};
-})();
-
-
-
-//UI Controller
-
-gameController.startGame();
 let cell = document.querySelectorAll('.cell');
 const restartButton = document.getElementById('restart');
 
@@ -91,12 +83,30 @@ restartButton.addEventListener('click', () => {
     cell.forEach(cell => cell.textContent = '');
     gameController.startGame();
 });
-
-function cellClicked(e) {
-    e.target.textContent = gameController.getCurrentPlayer().getMarker();
-    gameController.switchPlayer();
-}
-
 cell.forEach(cell => cell.addEventListener('click', cellClicked));
 
+function cellClicked(e) {
+    const index = e.target.dataset.index; // get the cell's index
+    if (e.target.textContent === '') {
+        gameBoard.updateBoard(index, gameController.getCurrentPlayer().getMarker()); // sync the board array
+        e.target.textContent = gameController.getCurrentPlayer().getMarker();
+        if (gameController.checkWin()) {
+            alert(`${gameController.getCurrentPlayer().getName()} wins!`);
+            gameBoard.resetBoard();
+            cell.forEach(cell => cell.textContent = '');
+            gameController.startGame();
+        } else if (gameController.checkTie()) {
+            alert("It's a tie!");
+            gameBoard.resetBoard();
+            cell.forEach(cell => cell.textContent = '');
+            gameController.startGame();
+        } else {
+            gameController.switchPlayer();
+        }
+    }
+}
 
+    return {startGame, switchPlayer, checkWin, checkTie, getCurrentPlayer};
+})();
+
+gameController.startGame();
