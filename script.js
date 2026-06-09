@@ -72,18 +72,24 @@ const gameController = (() => {
 //Function to start the game
     const getCurrentPlayer = () => currentPlayer;
     const startGame = () => {
+        document.getElementById('start').disabled = true;
         //enter player 1 name
-        const player1Name = prompt("Enter name for Player 1 (X):", "Player 1");
-        if (player1Name) {
-            player1.getName = () => player1Name;
-        }
+        setTimeout(() => {
+            const player1Name = prompt("Enter name for Player 1 (X):", "Player 1");
+            if (player1Name) {
+                player1.getName = () => player1Name;
+            }
+        }, 1000);
         //enter player 2 name
-        const player2Name = prompt("Enter name for Player 2 (O):", "Player 2");
-        if (player2Name) {
-            player2.getName = () => player2Name;
-        }
+        setTimeout(() => {
+            const player2Name = prompt("Enter name for Player 2 (O):", "Player 2");
+            if (player2Name) {
+                player2.getName = () => player2Name;
+            }
+        }, 1000);
         currentPlayer = player1;
     }
+
     const initializeGame = document.getElementById('start');
     initializeGame.addEventListener('click', startGame);
 
@@ -93,8 +99,10 @@ const restartButton = document.getElementById('restart');
 restartButton.addEventListener('click', () => {
     gameBoard.resetBoard();
     cell.forEach(cell => cell.textContent = '');
+    statusDisplay.textContent = '';
     gameController.startGame();
 });
+
 cell.forEach(cell => cell.addEventListener('click', cellClicked));
 const statusDisplay = document.getElementById('status');
 const endGame = (message) => {
@@ -107,7 +115,7 @@ const endGame = (message) => {
 function cellClicked(e) {
     const index = e.target.dataset.index;
     if (!gameController.getCurrentPlayer()) {
-        statusDisplay.textContent = "Press start to begin the game!";
+        statusDisplay.textContent = "Press start game to begin!";
         return;
     }
     if (e.target.textContent === '') {
