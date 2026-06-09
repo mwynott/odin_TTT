@@ -72,8 +72,20 @@ const gameController = (() => {
 //Function to start the game
     const getCurrentPlayer = () => currentPlayer;
     const startGame = () => {
+        //enter player 1 name
+        const player1Name = prompt("Enter name for Player 1 (X):", "Player 1");
+        if (player1Name) {
+            player1.getName = () => player1Name;
+        }
+        //enter player 2 name
+        const player2Name = prompt("Enter name for Player 2 (O):", "Player 2");
+        if (player2Name) {
+            player2.getName = () => player2Name;
+        }
         currentPlayer = player1;
     }
+    const initializeGame = document.getElementById('start');
+    initializeGame.addEventListener('click', startGame);
 
 let cell = document.querySelectorAll('.cell');
 const restartButton = document.getElementById('restart');
@@ -94,6 +106,10 @@ const endGame = (message) => {
 
 function cellClicked(e) {
     const index = e.target.dataset.index;
+    if (!gameController.getCurrentPlayer()) {
+        statusDisplay.textContent = "Press start to begin the game!";
+        return;
+    }
     if (e.target.textContent === '') {
         gameBoard.updateBoard(index, gameController.getCurrentPlayer().getMarker());
         e.target.textContent = gameController.getCurrentPlayer().getMarker();
@@ -112,4 +128,3 @@ function cellClicked(e) {
     return {startGame, switchPlayer, checkWin, checkTie, getCurrentPlayer};
 })();
 
-gameController.startGame();
