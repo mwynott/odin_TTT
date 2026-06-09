@@ -84,24 +84,27 @@ restartButton.addEventListener('click', () => {
     gameController.startGame();
 });
 cell.forEach(cell => cell.addEventListener('click', cellClicked));
+const statusDisplay = document.getElementById('status');
+const endGame = (message) => {
+    statusDisplay.textContent = message;
+    gameBoard.resetBoard();
+    cell.forEach(cell => cell.textContent = '');
+    gameController.startGame();
+}
 
 function cellClicked(e) {
-    const index = e.target.dataset.index; // get the cell's index
+    const index = e.target.dataset.index;
     if (e.target.textContent === '') {
-        gameBoard.updateBoard(index, gameController.getCurrentPlayer().getMarker()); // sync the board array
+        gameBoard.updateBoard(index, gameController.getCurrentPlayer().getMarker());
         e.target.textContent = gameController.getCurrentPlayer().getMarker();
+
         if (gameController.checkWin()) {
-            alert(`${gameController.getCurrentPlayer().getName()} wins!`);
-            gameBoard.resetBoard();
-            cell.forEach(cell => cell.textContent = '');
-            gameController.startGame();
+           setTimeout(() => endGame(`${gameController.getCurrentPlayer().getName()} wins!`), 500);
         } else if (gameController.checkTie()) {
-            alert("It's a tie!");
-            gameBoard.resetBoard();
-            cell.forEach(cell => cell.textContent = '');
-            gameController.startGame();
+           setTimeout(() => endGame("It's a tie!"), 500);
         } else {
             gameController.switchPlayer();
+            statusDisplay.textContent = `${gameController.getCurrentPlayer().getName()}'s turn`;
         }
     }
 }
