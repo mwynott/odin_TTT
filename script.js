@@ -1,20 +1,16 @@
-//Player
-//Factory function to create players
+// Player
 const player = (name, marker) => {
-    const getName = () => name;
+    let playerName = name;
+    const getName = () => playerName;
+    const setName = (newName) => { playerName = newName; };
     const getMarker = () => marker;
-
-    return {getName, getMarker};
+    return { getName, setName, getMarker };
 };
 
-//Board
-
+// Board
 const gameBoard = (() => {
-    //Array to hold empty spaces on the board
     const board = Array(9).fill('');
     const getBoard = () => board;
-
-    //Function to update the board with the player's marker
     const updateBoard = (index, marker) => {
         if (board[index] === '') {
             board[index] = marker;
@@ -22,117 +18,97 @@ const gameBoard = (() => {
         }
         return false;
     };
-    //Function to reset gameBoard to empty spaces
-    const resetBoard = () => {
-        for (let i = 0; i < board.length; i++) {
-            board[i] = '';
-        }
-    }
-    return {getBoard, updateBoard, resetBoard};
+    const resetBoard = () => board.fill('');
+    return { getBoard, updateBoard, resetBoard };
 })();
 
-//Game Controller
+// Game Controller
 const gameController = (() => {
     let currentPlayer;
+    let gameActive = false;
     const player1 = player('Player 1', 'X');
     const player2 = player('Player 2', 'O');
 
-//Function to switch the current player
+    const statusDisplay = document.getElementById('status');
+    const cells = document.querySelectorAll('.cell');
+    const startButton = document.getElementById('start');
+    const restartButton = document.getElementById('restart');
+
     const switchPlayer = () => {
         currentPlayer = currentPlayer === player1 ? player2 : player1;
     };
-//Function to check for a win condition
+
     const checkWin = () => {
         const board = gameBoard.getBoard();
-        //All possible win conditions for indices on 3x3 grid
         const winConditions = [
-            [0, 1, 2],
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6],
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8],
-            [2, 4, 6]
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
         ];
-        /*Check if any of the win conditions above are met for each of the
-        indices on the board. If the cells at those indices are not empty and
-        they are the same, then we have a winner!*/
         return winConditions.some(([a, b, c]) =>
-        board[a] !== '' && board[a] === board[b] && board[b] === board[c]
-    );
-    }
-
-//Function to check for tie
-    const checkTie = () => {
-        const board = gameBoard.getBoard();
-        return board.every(cell => cell !== '');
+            board[a] !== '' && board[a] === board[b] && board[b] === board[c]
+        );
     };
-    
-//Function to start the game
+
+    const checkTie = () => gameBoard.getBoard().every(cell => cell !== '');
+
     const getCurrentPlayer = () => currentPlayer;
-    const startGame = () => {
-        document.getElementById('start').disabled = true;
-        //enter player 1 name
-        setTimeout(() => {
-            const player1Name = prompt("Enter name for Player 1 (X):", "Player 1");
-            if (player1Name) {
-                player1.getName = () => player1Name;
-            }
-        }, 1000);
-        //enter player 2 name
-        setTimeout(() => {
-            const player2Name = prompt("Enter name for Player 2 (O):", "Player 2");
-            if (player2Name) {
-                player2.getName = () => player2Name;
-            }
-        }, 1000);
+
+    const resetGame = () => {
+        gameBoard.resetBoard();
+        cells.forEach(cell => cell.textContent = '');
         currentPlayer = player1;
-    }
+        gameActive = true;
+        statusDisplay.textContent = `${currentPlayer.getName()}'s turn`;
+    };
 
-    const initializeGame = document.getElementById('start');
-    initializeGame.addEventListener('click', startGame);
+    const startGame = () => {
+        if (gameActive) return; // Prevent re-entry
 
-let cell = document.querySelectorAll('.cell');
-const restartButton = document.getElementById('restart');
+        const p1Name = prompt("Enter name for Player 1 (X):", "Player 1");
+        player1.setName(p1Name?.trim() || 'Player 1');
 
-restartButton.addEventListener('click', () => {
-    gameBoard.resetBoard();
-    cell.forEach(cell => cell.textContent = '');
-    statusDisplay.textContent = '';
-    gameController.startGame();
-});
+        const p2Name = prompt("Enter name for Player 2 (O):", "Player 2");
+        player2.setName(p2Name?.trim() || 'Player 2');
 
-cell.forEach(cell => cell.addEventListener('click', cellClicked));
-const statusDisplay = document.getElementById('status');
-const endGame = (message) => {
-    statusDisplay.textContent = message;
-    gameBoard.resetBoard();
-    cell.forEach(cell => cell.textContent = '');
-    gameController.startGame();
-}
+        startButton.disabled = true;
+        restartButton.disabled = false;
 
-function cellClicked(e) {
-    const index = e.target.dataset.index;
-    if (!gameController.getCurrentPlayer()) {
-        statusDisplay.textContent = "Press start game to begin!";
-        return;
-    }
-    if (e.target.textContent === '') {
-        gameBoard.updateBoard(index, gameController.getCurrentPlayer().getMarker());
-        e.target.textContent = gameController.getCurrentPlayer().getMarker();
+        resetGame();
+    };
 
-        if (gameController.checkWin()) {
-           setTimeout(() => endGame(`${gameController.getCurrentPlayer().getName()} wins!`), 500);
-        } else if (gameController.checkTie()) {
-           setTimeout(() => endGame("It's a tie!"), 500);
+    const endGame = (message) => {
+        statusDisplay.textContent = message;
+        gameActive = false;
+        setTimeout(resetGame, 1500);
+    };
+
+    function cellClicked(e) {
+        if (!gameActive) {
+            statusDisplay.textContent = "Press Start Game to begin!";
+            return;
+        }
+        if (e.target.textContent !== '') return;
+
+        gameBoard.updateBoard(e.target.dataset.index, currentPlayer.getMarker());
+        e.target.textContent = currentPlayer.getMarker();
+
+        if (checkWin()) {
+            setTimeout(() => endGame(`${currentPlayer.getName()} wins!`), 500);
+        } else if (checkTie()) {
+            setTimeout(() => endGame("It's a tie!"), 500);
         } else {
-            gameController.switchPlayer();
-            statusDisplay.textContent = `${gameController.getCurrentPlayer().getName()}'s turn`;
+            switchPlayer();
+            statusDisplay.textContent = `${currentPlayer.getName()}'s turn`;
         }
     }
-}
 
-    return {startGame, switchPlayer, checkWin, checkTie, getCurrentPlayer};
+    startButton.addEventListener('click', startGame);
+    restartButton.addEventListener('click', () => {
+        if (!gameActive) return;
+        resetGame();
+    });
+    cells.forEach(cell => cell.addEventListener('click', cellClicked));
+
+    return { getCurrentPlayer, switchPlayer, checkWin, checkTie };
 })();
-
